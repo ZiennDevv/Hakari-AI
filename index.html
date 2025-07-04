@@ -199,7 +199,8 @@
                     <li>=> Tidak perlu limit</li>
                     <li>=> Bisa Akses Private Chat</li>
                 </ul>
-                <p>Cara beli? Klik beli pada produk yang diinginkan lalu scroll kebawah klik generate dan scan code kemudian hubungi owner.</p>
+                
+                <h2>Cara beli? Klik Nomer Owner dibawah.</h2>
                 <p>Contact Owner:</p>
                 <p>WA: <a href="https://wa.me/6285176729049">https://wa.me/6285176729049</a></p>
                 <p>Group Bot: <a href="https://chat.whatsapp.com/GruL0cPiO4AF43ngAEwMmh?mode=ac_c">https://chat.whatsapp.com/GruL0cPiO4AF43ngAEwMmh?mode=ac_c</a></p>
@@ -212,17 +213,14 @@
                     <div class="sub-product">
                         <h3>Sewabot 7 Hari</h3>
                         <p class="price">Rp.9.000</p>
-                        <button onclick="redirectToPayment(9000)">Beli</button>
                     </div>
                     <div class="sub-product">
                         <h3>Sewabot 30 Hari</h3>
                         <p class="price">Rp.20.000</p>
-                        <button onclick="redirectToPayment(20000)">Beli</button>
                     </div>
                     <div class="sub-product">
                         <h3>Sewa Permanen Slot Terbatas</h3>
                         <p class="price">Rp.250.000</p>
-                        <button onclick="redirectToPayment(250000)">Beli</button>
                     </div>
                 </div>
                 
@@ -230,113 +228,18 @@
         <div class="product">
             <h2>Premium 1 Minggu</h2>
             <p class="price">Rp.8.000</p>
-            <button onclick="redirectToPayment(8000)">Beli</button>
         </div>
         <div class="product">
             <h2>Premium 1 Bulan</h2>
             <p class="price">Rp.18.000</p>
-            <button onclick="redirectToPayment(18000)">Beli</button>
         </div>
         <div class="product">
             <h2>Premium Permanen Slot Terbatas</h2>
             <p class="price">Rp.200.000</p>
-            <button onclick="redirectToPayment(200000)">Beli</button>
         </div>
     </div>
     
 
-        <div class="container" id="payment-container">
-            <h2>Pembayaran</h2>
-            <label for="amount">Nominal Pembayaran (dalam Rupiah):</label>
-            <input type="number" id="amount" placeholder="Masukkan nominal" min="1000" readonly>
-            <div class="error" id="error-message"></div>
-            <button onclick="generateQR()">Generate QR</button>
-
-            <h3>Kode QR:</h3>
-            <canvas id="qrcode"></canvas>
-            <button id="download-btn">Download QR Code</button>
-            <p id="qr-instruction"></p>
-            <button id="confirm-btn">Konfirmasi Pembayaran</button>
-        </div>
-
-        <script>
-            function redirectToPayment(amount) {
-                document.getElementById('payment-container').style.display = 'block';
-                document.getElementById('amount').value = amount;
-            }
-
-            function convertCRC16(str) {
-                let crc = 0xFFFF;
-                for (let i = 0; i < str.length; i++) {
-                    crc ^= str.charCodeAt(i) << 8;
-                    for (let j = 0; j < 8; j++) {
-                        if ((crc & 0x8000) !== 0) {
-                            crc = (crc << 1) ^ 0x1021;
-                        } else {
-                            crc <<= 1;
-                        }
-                    }
-                }
-                crc &= 0xFFFF;
-                return crc.toString(16).toUpperCase().padStart(4, '0');
-            }
-
-            function p(qrisData, paymentAmount) {
-                qrisData = qrisData.slice(0, -4);
-                const step1 = qrisData.replace("010211", "010212");
-                const step2 = step1.split("5802ID");
-                const uang = "54" + ("0" + paymentAmount.length).slice(-2) + paymentAmount;
-                const completeData = step2[0] + uang + step2[1] + convertCRC16(step2[0] + uang + step2[1]);
-                return completeData;
-            }
-
-            function generateQR() {
-                const amount = document.getElementById('amount').value;
-                const errorMessage = document.getElementById('error-message');
-                const qrCodeCanvas = document.getElementById('qrcode');
-                errorMessage.textContent = "";
-                qrCodeCanvas.getContext('2d').clearRect(0, 0, qrCodeCanvas.width, qrCodeCanvas.height);
-
-                if (!amount || amount <= 0 || amount < 1000) {
-                    errorMessage.textContent = 'Masukkan nominal yang valid (minimal Rp 1000).';
-                    return;
-                }
-
-                const qrisData = '00020101021126570011ID.DANA.WWW011893600915343231899802094323189980303UMI51440014ID.CO.QRIS.WWW0215ID10232595345770303UMI5204594553033605802ID5910Dix Trends6015Kab. Pangandara6105463966304B83B';
-                const qrCodeData = p(qrisData, amount);
-
-                QRCode.toCanvas(qrCodeCanvas, qrCodeData, {
-                    width: 256,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                }, function(error) {
-                    if (error) {
-                        console.error(error);
-                        errorMessage.textContent = 'Terjadi kesalahan saat membuat kode QR.';
-                    } else {
-                        console.log('QR Code berhasil dibuat!');
-                        const qrInstruction = document.getElementById('qr-instruction');
-                        qrInstruction.textContent = 'Silahkan scan kode QR di atas untuk pembayaran melalui aplikasi dana, gopay, atau lainnya';
-
-                        const downloadBtn = document.getElementById('download-btn');
-                        downloadBtn.style.display = 'block';
-                        downloadBtn.addEventListener('click', function() {
-                            const link = document.createElement('a');
-                            link.download = 'qr_code.png';
-                            link.href = qrCodeCanvas.toDataURL();
-                            link.click();
-                        });
-
-                        const confirmBtn = document.getElementById('confirm-btn');
-                        confirmBtn.style.display = 'block';
-                        confirmBtn.addEventListener('click', function() {
-                            const waLink = `https://wa.me/6285176729049?text=Konfirmasi%20pembayaran%20dengan%20nominal%20Rp${amount}`;
-                            window.open(waLink, '_blank');
-                        });
-                    }
-                });
-            }
-        </script>
 </body>
 
 </html>
